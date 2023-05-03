@@ -9,4 +9,4 @@ runai submit \
   --host-ipc \
   --project wds20 \
   --volume /nfs/home/wds20/datasets/CSAW/sourcedata/:/sourcedata/ \
-  --command -- /sourcedata/images.zip -d /sourcedata/images
+  --command -- unzip /sourcedata/images.zip -d /sourcedata/
