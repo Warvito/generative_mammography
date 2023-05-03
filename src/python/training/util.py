@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from custom_transforms import ApplyTokenizerd, LoadJSONd, RandomSelectExcerptd
 from mlflow import start_run
 from monai import transforms
 from monai.data import PersistentDataset
@@ -59,20 +58,11 @@ def get_dataloader(
         [
             transforms.LoadImaged(keys=["image"]),
             transforms.EnsureChannelFirstd(keys=["image"]),
-            transforms.Lambdad(
-                keys=["image"],
-                func=lambda x: x[0, :, :][
-                    None,
-                ],
-            ),
             transforms.Rotate90d(keys=["image"], k=-1, spatial_axes=(0, 1)),  # Fix flipped image read
             transforms.Flipd(keys=["image"], spatial_axis=1),  # Fix flipped image read
             transforms.ScaleIntensityRanged(keys=["image"], a_min=0.0, a_max=255.0, b_min=0.0, b_max=1.0, clip=True),
             transforms.CenterSpatialCropd(keys=["image"], roi_size=(512, 512)),
             transforms.ToTensord(keys=["image"]),
-            LoadJSONd(keys=["report"]),
-            RandomSelectExcerptd(keys=["report"], sentence_key="sentences", max_n_sentences=5),
-            ApplyTokenizerd(keys=["report"]),
         ]
     )
     if model_type == "autoencoder":
@@ -80,12 +70,6 @@ def get_dataloader(
             [
                 transforms.LoadImaged(keys=["image"]),
                 transforms.EnsureChannelFirstd(keys=["image"]),
-                transforms.Lambdad(
-                    keys=["image"],
-                    func=lambda x: x[0, :, :][
-                        None,
-                    ],
-                ),
                 transforms.Rotate90d(keys=["image"], k=-1, spatial_axes=(0, 1)),  # Fix flipped image read
                 transforms.Flipd(keys=["image"], spatial_axis=1),  # Fix flipped image read
                 transforms.ScaleIntensityRanged(
@@ -102,9 +86,6 @@ def get_dataloader(
                 ),
                 transforms.RandFlipd(keys=["image"], spatial_axis=1, prob=0.5),
                 transforms.ToTensord(keys=["image"]),
-                LoadJSONd(keys=["report"]),
-                RandomSelectExcerptd(keys=["report"], sentence_key="sentences", max_n_sentences=5),
-                ApplyTokenizerd(keys=["report"]),
             ]
         )
     if model_type == "diffusion":
@@ -112,12 +93,6 @@ def get_dataloader(
             [
                 transforms.LoadImaged(keys=["image"]),
                 transforms.EnsureChannelFirstd(keys=["image"]),
-                transforms.Lambdad(
-                    keys=["image"],
-                    func=lambda x: x[0, :, :][
-                        None,
-                    ],
-                ),
                 transforms.Rotate90d(keys=["image"], k=-1, spatial_axes=(0, 1)),  # Fix flipped image read
                 transforms.Flipd(keys=["image"], spatial_axis=1),  # Fix flipped image read
                 transforms.ScaleIntensityRanged(
@@ -130,19 +105,9 @@ def get_dataloader(
                     translate_range=(-2, 2),
                     scale_range=(-0.01, 0.01),
                     spatial_size=[512, 512],
-                    prob=0.10,
+                    prob=0.1,
                 ),
                 transforms.ToTensord(keys=["image"]),
-                LoadJSONd(keys=["report"]),
-                RandomSelectExcerptd(keys=["report"], sentence_key="sentences", max_n_sentences=5),
-                ApplyTokenizerd(keys=["report"]),
-                transforms.RandLambdad(
-                    keys=["report"],
-                    prob=0.10,
-                    func=lambda x: torch.cat(
-                        (49406 * torch.ones(1, 1), 49407 * torch.ones(1, x.shape[1] - 1)), 1
-                    ).long(),
-                ),  # 49406: BOS token 49407: PAD token
             ]
         )
 
