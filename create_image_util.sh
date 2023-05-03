@@ -4,9 +4,9 @@
 #
 # $ create_docker_image.sh
 set -ex
-TAG=ldm_mammography
+TAG=mammography_util
 
-docker build --network=host --tag "aicregistry:5000/${USER}:${TAG}" -f Dockerfile . \
+docker build --network=host --tag "aicregistry:5000/${USER}:${TAG}" -f Dockerfile.util . \
   --build-arg USER_ID=$(id -u) \
   --build-arg GROUP_ID=$(id -g) \
   --build-arg USER=${USER}
