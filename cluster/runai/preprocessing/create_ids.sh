@@ -1,5 +1,5 @@
-metadata_path="/sourcedata/labels/CSAW-M_train.csv",
-output_dir="/project/outputs"
+metadata_path="/sourcedata/labels/CSAW-M_train.csv"
+output_dir="/project/outputs/ids/"
 
 runai submit \
   --name create-ids-mammo \

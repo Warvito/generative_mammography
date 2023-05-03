@@ -30,13 +30,9 @@ def get_datalist(
 
     data_dicts = []
     for index, row in df.iterrows():
-        report_path = row["report"]
-        if extended_report:
-            report_path = report_path.replace("report_sentences", "report_sentences_extended")
         data_dicts.append(
             {
                 "image": f"{row['image']}",
-                "report": report_path,
             }
         )
 
