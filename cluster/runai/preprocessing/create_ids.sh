@@ -1,3 +1,6 @@
+metadata_path="/sourcedata/labels/CSAW-M_train.csv",
+output_dir="/project/outputs"
+
 runai submit \
   --name create-ids-mammo \
   --image aicregistry:5000/wds20:ldm_mammography \
@@ -9,4 +12,5 @@ runai submit \
   --host-ipc \
   --project wds20 \
   --volume /nfs/home/wds20/datasets/CSAW/sourcedata/:/sourcedata/ \
+  --volume /nfs/home/wds20/projects/generative_mammography/:/project/ \
   --command -- sleep infinity
