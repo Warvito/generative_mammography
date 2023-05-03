@@ -13,4 +13,6 @@ runai submit \
   --project wds20 \
   --volume /nfs/home/wds20/datasets/CSAW/sourcedata/:/sourcedata/ \
   --volume /nfs/home/wds20/projects/generative_mammography/:/project/ \
-  --command -- sleep infinity
+  --command -- python /project/src/python/preprocessing/create_ids.py \
+    --metadata_path=${metadata_path} \
+    --output_dir=${output_dir}

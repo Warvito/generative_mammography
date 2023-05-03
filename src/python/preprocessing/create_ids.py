@@ -26,11 +26,9 @@ def main(args):
             }
         )
 
-    # transform data list to dataframe and shuffle it using a random seed
     data_df = pd.DataFrame(data_list)
     data_df = data_df.sample(frac=1, random_state=42).reset_index(drop=True)
 
-    # split in train, validation and test data lists. The total number of PA images in data_df is 96161.
     train_data_list = data_df[:9000]
     val_data_list = data_df[9000:]
 
