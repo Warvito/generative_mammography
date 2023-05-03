@@ -22,7 +22,7 @@ def main(args):
     for index, row in metadata_df.iterrows():
         data_list.append(
             {
-                "image": f"/sourcedata/images/{row['Filename']}",
+                "image": f"/data/images/preprocessed/train/{row['Filename']}",
             }
         )
 
