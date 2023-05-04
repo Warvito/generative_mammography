@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+from custom_transforms import ApplyTokenizerd
 from mlflow import start_run
 from monai import transforms
 from monai.data import PersistentDataset
@@ -23,7 +24,6 @@ from tqdm import tqdm
 # ----------------------------------------------------------------------------------------------------------------------
 def get_datalist(
     ids_path: str,
-    extended_report: bool = False,
 ):
     """Get data dicts for data loaders."""
     df = pd.read_csv(ids_path, sep="\t")
@@ -47,7 +47,6 @@ def get_dataloader(
     validation_ids: str,
     num_workers: int = 8,
     model_type: str = "autoencoder",
-    extended_report: bool = False,
 ):
     # Define transformations
     val_transforms = transforms.Compose(
@@ -57,8 +56,10 @@ def get_dataloader(
             transforms.Rotate90d(keys=["image"], k=-1, spatial_axes=(0, 1)),  # Fix flipped image read
             transforms.Flipd(keys=["image"], spatial_axis=1),  # Fix flipped image read
             transforms.ScaleIntensityRanged(keys=["image"], a_min=0.0, a_max=255.0, b_min=0.0, b_max=1.0, clip=True),
-            transforms.CenterSpatialCropd(keys=["image"], roi_size=(512, 512)),
+            transforms.CenterSpatialCropd(keys=["image"], roi_size=(640, 512)),
+            transforms.SpatialPadd(keys=["image"], spatial_size=(640, 512)),
             transforms.ToTensord(keys=["image"]),
+            ApplyTokenizerd(keys=["report"]),
         ]
     )
     if model_type == "autoencoder":
@@ -71,17 +72,19 @@ def get_dataloader(
                 transforms.ScaleIntensityRanged(
                     keys=["image"], a_min=0.0, a_max=255.0, b_min=0.0, b_max=1.0, clip=True
                 ),
-                transforms.CenterSpatialCropd(keys=["image"], roi_size=(512, 512)),
+                transforms.CenterSpatialCropd(keys=["image"], roi_size=(640, 512)),
+                transforms.SpatialPadd(keys=["image"], spatial_size=(640, 512)),
                 transforms.RandAffined(
                     keys=["image"],
-                    rotate_range=(-np.pi / 36, np.pi / 36),
-                    translate_range=(-2, 2),
-                    scale_range=(-0.01, 0.01),
-                    spatial_size=[512, 512],
+                    rotate_range=(-np.pi / 18, np.pi / 18),
+                    translate_range=(-10, 10),
+                    scale_range=(-0.05, 0.05),
+                    spatial_size=[640, 512],
                     prob=0.5,
                 ),
-                transforms.RandFlipd(keys=["image"], spatial_axis=1, prob=0.5),
+                transforms.RandFlipd(keys=["image"], spatial_axis=1, prob=0.25),
                 transforms.ToTensord(keys=["image"]),
+                ApplyTokenizerd(keys=["report"]),
             ]
         )
     if model_type == "diffusion":
@@ -94,20 +97,21 @@ def get_dataloader(
                 transforms.ScaleIntensityRanged(
                     keys=["image"], a_min=0.0, a_max=255.0, b_min=0.0, b_max=1.0, clip=True
                 ),
-                transforms.CenterSpatialCropd(keys=["image"], roi_size=(512, 512)),
-                transforms.RandAffined(
-                    keys=["image"],
-                    rotate_range=(-np.pi / 36, np.pi / 36),
-                    translate_range=(-2, 2),
-                    scale_range=(-0.01, 0.01),
-                    spatial_size=[512, 512],
-                    prob=0.1,
-                ),
+                transforms.CenterSpatialCropd(keys=["image"], roi_size=(640, 512)),
+                transforms.SpatialPadd(keys=["image"], spatial_size=(640, 512)),
                 transforms.ToTensord(keys=["image"]),
+                ApplyTokenizerd(keys=["report"]),
+                transforms.RandLambdad(
+                    keys=["report"],
+                    prob=0.10,
+                    func=lambda x: torch.cat(
+                        (49406 * torch.ones(1, 1), 49407 * torch.ones(1, x.shape[1] - 1)), 1
+                    ).long(),
+                ),  # 49406: BOS token 49407: PAD token
             ]
         )
 
-    train_dicts = get_datalist(ids_path=training_ids, extended_report=extended_report)
+    train_dicts = get_datalist(ids_path=training_ids)
     train_ds = PersistentDataset(data=train_dicts, transform=train_transforms, cache_dir=str(cache_dir))
     train_loader = DataLoader(
         train_ds,
@@ -119,7 +123,7 @@ def get_dataloader(
         persistent_workers=True,
     )
 
-    val_dicts = get_datalist(ids_path=validation_ids, extended_report=extended_report)
+    val_dicts = get_datalist(ids_path=validation_ids)
     val_ds = PersistentDataset(data=val_dicts, transform=val_transforms, cache_dir=str(cache_dir))
     val_loader = DataLoader(
         val_ds,

@@ -20,9 +20,18 @@ def main(args):
 
     data_list = []
     for index, row in metadata_df.iterrows():
+
+        if int(row["Label"]) <= 2:
+            sentence = "Low masking level"
+        elif int(row["Label"]) <= 6:
+            sentence = "Medium masking level"
+        else:
+            sentence = "High masking level"
+
         data_list.append(
             {
                 "image": f"/data/images/preprocessed/train/{row['Filename']}",
+                "report": sentence,
             }
         )
 

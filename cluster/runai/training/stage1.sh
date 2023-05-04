@@ -4,9 +4,9 @@ training_ids="/project/outputs/ids/train.tsv"
 validation_ids="/project/outputs/ids/validation.tsv"
 config_file="/project/configs/stage1/aekl_v0.yaml"
 batch_size=96
-n_epochs=75
-adv_start=5
-eval_freq=3
+n_epochs=750
+adv_start=50
+eval_freq=60
 num_workers=64
 experiment="AEKL"
 
@@ -22,7 +22,7 @@ runai submit \
   --host-ipc \
   --project wds20 \
   --volume /nfs/home/wds20/projects/generative_mammography/:/project/ \
-  --volume /nfs/home/wds20/datasets/CSAW/sourcedata/:/sourcedata/ \
+  --volume /nfs/home/wds20/datasets/CSAW/sourcedata/:/data/ \
   --command -- bash /project/src/bash/start_script.sh \
     python3 /project/src/python/training/train_aekl.py \
       seed=${seed} \
