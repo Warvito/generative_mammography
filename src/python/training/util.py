@@ -33,6 +33,7 @@ def get_datalist(
         data_dicts.append(
             {
                 "image": f"{row['image']}",
+                "report": f"{row['report']}",
             }
         )
 
