@@ -2,19 +2,18 @@ seed=2
 run_dir="aekl_v0_ldm_v0"
 training_ids="/project/outputs/ids/train.tsv"
 validation_ids="/project/outputs/ids/validation.tsv"
-stage1_uri="/project/mlruns/398344666374521908/0fde76e3e71b4ed4a92aea593c73c3db/artifacts/final_model"
+stage1_uri="/project/mlruns/528206275705240271/fccca273f5b7437da36405dd9c1f94ad/artifacts/final_model"
 config_file="/project/configs/ldm/ldm_v0.yaml"
 scale_factor=0.3
 batch_size=256
 n_epochs=500
 eval_freq=10
 num_workers=64
-extended_report=0
 experiment="LDM"
 
 runai submit \
-  --name  mimic-ldm-v0 \
-  --image aicregistry:5000/wds20:ldm_mimic \
+  --name mammo-ldm-v0 \
+  --image aicregistry:5000/wds20:ldm_mammography \
   --backoff-limit 0 \
   --gpu 8 \
   --cpu 32 \
@@ -22,8 +21,8 @@ runai submit \
   --run-as-user \
   --host-ipc \
   --project wds20 \
-  --volume /nfs/home/wds20/projects/generative_mimic/:/project/ \
-  --volume /nfs/home/wds20/datasets/MIMIC-CXR-JPG_v2.0.0/:/data/ \
+  --volume /nfs/home/wds20/projects/generative_mammography/:/project/ \
+  --volume /nfs/home/wds20/datasets/CSAW/sourcedata/:/data/ \
   --command -- bash /project/src/bash/start_script.sh \
       python3 /project/src/python/training/train_ldm.py \
       seed=${seed} \
@@ -37,5 +36,4 @@ runai submit \
       n_epochs=${n_epochs} \
       eval_freq=${eval_freq} \
       num_workers=${num_workers} \
-      extended_report=${extended_report} \
       experiment=${experiment}
