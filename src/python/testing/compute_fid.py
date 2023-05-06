@@ -1,14 +1,10 @@
 """ Script to compute the Frechet Inception Distance (FID) of the samples of the LDM.
-
-In order to measure the quality of the samples, we use the Frechet Inception Distance (FID) metric between 1200 images
-from the MIMIC-CXR dataset and 1000 images from the LDM.
 """
 import argparse
 from pathlib import Path
 
 import torch
 import torch.nn.functional as F
-import torchxrayvision as xrv
 from generative.metrics import FIDMetric
 from monai import transforms
 from monai.config import print_config
@@ -17,6 +13,38 @@ from monai.utils import set_determinism
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from util import get_test_dataloader
+
+
+def subtract_mean(x: torch.Tensor) -> torch.Tensor:
+    mean = [0.406, 0.456, 0.485]
+    x[:, 0, :, :] -= mean[0]
+    x[:, 1, :, :] -= mean[1]
+    x[:, 2, :, :] -= mean[2]
+    return x
+
+
+def spatial_average(x: torch.Tensor, keepdim: bool = True) -> torch.Tensor:
+    return x.mean([2, 3], keepdim=keepdim)
+
+
+def get_features(image, radnet):
+    # If input has just 1 channel, repeat channel to have 3 channels
+    if image.shape[1]:
+        image = image.repeat(1, 3, 1, 1)
+
+    # Change order from 'RGB' to 'BGR'
+    image = image[:, [2, 1, 0], ...]
+
+    # Subtract mean used during training
+    image = subtract_mean(image)
+
+    # Get model outputs
+    with torch.no_grad():
+        feature_image = radnet.forward(image)
+        # flattens the image spatially
+        feature_image = spatial_average(feature_image, keepdim=False)
+
+    return feature_image
 
 
 def parse_args():
@@ -40,7 +68,7 @@ def main(args):
 
     # Load pretrained model
     device = torch.device("cuda")
-    model = xrv.models.DenseNet(weights="densenet121-res224-all")
+    model = torch.hub.load("Warvito/radimagenet-models", model="radimagenet_resnet50", verbose=True)
     model = model.to(device)
     model.eval()
 
@@ -79,8 +107,7 @@ def main(args):
     for batch in tqdm(samples_loader):
         img = batch["image"]
         with torch.no_grad():
-            outputs = model.features(img.to(device))
-            outputs = F.adaptive_avg_pool2d(outputs, 1).squeeze(-1).squeeze(-1)  # Global average pooling
+            outputs = get_features(img.to(device), radnet=model)
 
         samples_features.append(outputs.cpu())
     samples_features = torch.cat(samples_features, dim=0)
