@@ -4,7 +4,6 @@ import argparse
 from pathlib import Path
 
 import torch
-import torch.nn.functional as F
 from generative.metrics import FIDMetric
 from monai import transforms
 from monai.config import print_config
@@ -124,8 +123,7 @@ def main(args):
     for batch in tqdm(test_loader):
         img = batch["image"]
         with torch.no_grad():
-            outputs = model.features(img.to(device))
-            outputs = F.adaptive_avg_pool2d(outputs, 1).squeeze(-1).squeeze(-1)  # Global average pooling
+            outputs = get_features(img.to(device), radnet=model)
 
         test_features.append(outputs.cpu())
     test_features = torch.cat(test_features, dim=0)
