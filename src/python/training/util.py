@@ -84,6 +84,10 @@ def get_dataloader(
                     prob=0.5,
                 ),
                 transforms.RandFlipd(keys=["image"], spatial_axis=1, prob=0.25),
+                transforms.RandShiftIntensityd(keys=["image"], offsets=0.05, prob=0.1),
+                transforms.RandAdjustContrastd(keys=["image"], gamma=(0.95, 1.05), prob=0.1),
+                transforms.ThresholdIntensityd(keys=["image"], threshold=1, above=False, cval=1.0),
+                transforms.ThresholdIntensityd(keys=["image"], threshold=0, above=True, cval=0),
                 transforms.ToTensord(keys=["image"]),
                 ApplyTokenizerd(keys=["report"]),
             ]
@@ -183,15 +187,11 @@ def get_figure(
 ):
     img_npy_0 = np.clip(a=img[0, 0, :, :].cpu().numpy(), a_min=0, a_max=1)
     recons_npy_0 = np.clip(a=recons[0, 0, :, :].cpu().numpy(), a_min=0, a_max=1)
-    img_npy_1 = np.clip(a=img[1, 0, :, :].cpu().numpy(), a_min=0, a_max=1)
-    recons_npy_1 = np.clip(a=recons[1, 0, :, :].cpu().numpy(), a_min=0, a_max=1)
 
     img_row_0 = np.concatenate(
         (
             img_npy_0,
             recons_npy_0,
-            img_npy_1,
-            recons_npy_1,
         ),
         axis=1,
     )

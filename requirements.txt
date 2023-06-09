@@ -1,9 +1,12 @@
-lpips==0.1.4
-pre-commit
-monai-weekly[nibabel, matplotlib, pandas, mlflow, tqdm, pillow]==1.2.dev2304
-tensorboardX
-omegaconf==2.3.0
-pynvml
+black
 gdown
+isort
+lpips==0.1.4
+monai-generative
+monai[tifffile, imagecodecs, matplotlib, pandas, mlflow, tqdm, pillow]==1.2.0
+omegaconf==2.3.0
+pre-commit
+pynvml
 spacy
+tensorboardX
 transformers[torch]
