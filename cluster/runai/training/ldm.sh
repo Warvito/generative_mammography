@@ -5,7 +5,7 @@ validation_ids="/project/outputs/ids/validation.tsv"
 stage1_uri="/project/mlruns/528206275705240271/0453cddba39645df82bc7780541e6039/artifacts/final_model"
 config_file="/project/configs/ldm/ldm_v1.yaml"
 scale_factor=0.3
-batch_size=64
+batch_size=48
 n_epochs=1000
 eval_freq=10
 num_workers=64
@@ -19,6 +19,7 @@ runai submit \
   --cpu 32 \
   --large-shm \
   --run-as-user \
+  --node-type "A100" \
   --host-ipc \
   --project wds20 \
   --volume /nfs/home/wds20/projects/generative_mammography/:/project/ \
