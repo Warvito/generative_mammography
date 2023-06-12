@@ -1,21 +1,21 @@
 seed=2
-run_dir="aekl_v0_ldm_v0"
+run_dir="aekl_v1_ldm_v1"
 training_ids="/project/outputs/ids/train.tsv"
 validation_ids="/project/outputs/ids/validation.tsv"
-stage1_uri="/project/mlruns/528206275705240271/fccca273f5b7437da36405dd9c1f94ad/artifacts/final_model"
-config_file="/project/configs/ldm/ldm_v0.yaml"
+stage1_uri="/project/mlruns/528206275705240271/0453cddba39645df82bc7780541e6039/artifacts/final_model"
+config_file="/project/configs/ldm/ldm_v1.yaml"
 scale_factor=0.3
-batch_size=192
-n_epochs=500
+batch_size=64
+n_epochs=1000
 eval_freq=10
 num_workers=64
 experiment="LDM"
 
 runai submit \
-  --name mammo-ldm-v0 \
+  --name mammo-ldm-v1 \
   --image aicregistry:5000/wds20:ldm_mammography \
   --backoff-limit 0 \
-  --gpu 8 \
+  --gpu 4 \
   --cpu 32 \
   --large-shm \
   --run-as-user \

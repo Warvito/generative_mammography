@@ -3,19 +3,19 @@ run_dir="aekl_v1"
 training_ids="/project/outputs/ids/train.tsv"
 validation_ids="/project/outputs/ids/validation.tsv"
 config_file="/project/configs/stage1/aekl_v1.yaml"
-batch_size=8
+batch_size=16
 n_epochs=750
 adv_start=50
 eval_freq=10
-num_workers=64
+num_workers=128
 experiment="AEKL"
 
 runai submit \
   --name mammo-aekl-v1 \
   --image aicregistry:5000/wds20:ldm_mammography \
   --backoff-limit 0 \
-  --gpu 8 \
-  --cpu 32 \
+  --gpu 4 \
+  --cpu 96 \
   --large-shm \
   --run-as-user \
   --node-type "A100" \
