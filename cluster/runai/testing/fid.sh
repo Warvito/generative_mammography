@@ -16,9 +16,10 @@ runai submit \
   --project wds20 \
   --volume /nfs/home/wds20/projects/generative_mammography/:/project/ \
   --volume /nfs/home/wds20/datasets/CSAW/sourcedata/:/data/ \
-  --command -- python3 /project/src/python/testing/compute_fid.py \
-      --seed=${seed} \
-      --sample_dir=${sample_dir} \
-      --test_ids=${test_ids} \
-      --batch_size=${batch_size} \
-      --num_workers=${num_workers}
+  --command -- bash /project/src/bash/start_script.sh \
+    python3 /project/src/python/testing/compute_fid.py \
+      seed=${seed} \
+      sample_dir=${sample_dir} \
+      test_ids=${test_ids} \
+      batch_size=${batch_size} \
+      num_workers=${num_workers}
