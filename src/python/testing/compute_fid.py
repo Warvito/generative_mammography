@@ -73,7 +73,7 @@ def main(args):
 
     # Samples
     samples_datalist = []
-    for sample_path in sorted(list(samples_dir.glob("*.jpg"))):
+    for sample_path in sorted(list(samples_dir.glob("*.png"))):
         samples_datalist.append(
             {
                 "image": str(sample_path),
